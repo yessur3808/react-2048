@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 import { GameBoard } from "./components/GameBoard";
-import { addRandomTile, createInitialBoard, moveBoard } from "./game/board";
+import { addRandomTile, createInitialBoard, moveBoard } from "./game";
 import type { Board, Direction } from "./game/types";
 
 const getDirectionFromKey = (key: string): Direction | null => {
