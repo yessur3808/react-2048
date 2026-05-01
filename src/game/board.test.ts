@@ -1,7 +1,11 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import {
+  addRandomTile,
   boardsEqual,
+  createInitialBoard,
+  createEmptyBoard,
+  getEmptyCells,
   mergeLineLeft,
   moveBoard,
   moveDown,
@@ -192,5 +196,129 @@ describe("board movement", () => {
     ];
 
     expect(moveLeft(board).changed).toBe(false);
+  });
+});
+
+describe("board generation", () => {
+  it("getEmptyCells returns the coordinates of all empty cells", () => {
+    const board = [
+      [2, null, 4, null],
+      [null, null, 8, 16],
+      [32, 64, null, 128],
+      [256, 512, 1024, null],
+    ];
+
+    expect(getEmptyCells(board)).toEqual([
+      { row: 0, col: 1 },
+      { row: 0, col: 3 },
+      { row: 1, col: 0 },
+      { row: 1, col: 1 },
+      { row: 2, col: 2 },
+      { row: 3, col: 3 },
+    ]);
+  });
+
+  it("addRandomTile returns an unchanged copy when the board is full", () => {
+    const board = [
+      [2, 4, 8, 16],
+      [32, 64, 128, 256],
+      [512, 1024, 2, 4],
+      [8, 16, 32, 64],
+    ];
+
+    const result = addRandomTile(board);
+
+    expect(result).toEqual(board);
+    expect(result).not.toBe(board);
+  });
+
+  it("addRandomTile adds a 2 with 90 percent probability", () => {
+    const board = createEmptyBoard();
+    const randomSpy = vi.spyOn(Math, "random");
+
+    randomSpy.mockReturnValueOnce(0).mockReturnValueOnce(0.5);
+
+    const result = addRandomTile(board);
+
+    expect(result).toEqual([
+      [2, null, null, null],
+      [null, null, null, null],
+      [null, null, null, null],
+      [null, null, null, null],
+    ]);
+
+    randomSpy.mockRestore();
+  });
+
+  it("addRandomTile adds a 4 with 10 percent probability", () => {
+    const board = createEmptyBoard();
+    const randomSpy = vi.spyOn(Math, "random");
+
+    randomSpy.mockReturnValueOnce(0).mockReturnValueOnce(0.95);
+
+    const result = addRandomTile(board);
+
+    expect(result).toEqual([
+      [4, null, null, null],
+      [null, null, null, null],
+      [null, null, null, null],
+      [null, null, null, null],
+    ]);
+
+    randomSpy.mockRestore();
+  });
+
+  it("addRandomTile does not mutate the input board", () => {
+    const board = createEmptyBoard();
+    const snapshot = board.map((row) => [...row]);
+    const randomSpy = vi.spyOn(Math, "random");
+
+    randomSpy.mockReturnValueOnce(0).mockReturnValueOnce(0.5);
+
+    void addRandomTile(board);
+
+    expect(board).toEqual(snapshot);
+
+    randomSpy.mockRestore();
+  });
+
+  it("createInitialBoard can create the minimum number of initial 2 tiles", () => {
+    const randomSpy = vi.spyOn(Math, "random");
+
+    randomSpy
+      .mockReturnValueOnce(0)
+      .mockReturnValueOnce(0)
+      .mockReturnValueOnce(0);
+
+    const board = createInitialBoard();
+    const placedValues = board.flat().filter((cell) => cell !== null);
+
+    expect(placedValues).toHaveLength(2);
+    expect(placedValues.every((cell) => cell === 2)).toBe(true);
+
+    randomSpy.mockRestore();
+  });
+
+  it("createInitialBoard can create the maximum number of initial 2 tiles", () => {
+    const randomSpy = vi.spyOn(Math, "random");
+
+    randomSpy
+      .mockReturnValueOnce(0.999999)
+      .mockReturnValueOnce(0)
+      .mockReturnValueOnce(0)
+      .mockReturnValueOnce(0)
+      .mockReturnValueOnce(0)
+      .mockReturnValueOnce(0)
+      .mockReturnValueOnce(0)
+      .mockReturnValueOnce(0)
+      .mockReturnValueOnce(0);
+
+    const board = createInitialBoard();
+    const placedValues = board.flat().filter((cell) => cell !== null);
+
+    expect(placedValues).toHaveLength(8);
+    expect(placedValues.every((cell) => cell === 2)).toBe(true);
+
+    randomSpy.mockRestore();
   });
 });
