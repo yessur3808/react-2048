@@ -23,7 +23,7 @@ const loadModel = async (): Promise<tf.LayersModel> => {
     return model;
   } catch (err) {
     loadError = err instanceof Error ? err.message : "Failed to load AI model";
-    throw new Error(loadError);
+    throw new Error(loadError, { cause: err });
   }
 };
 

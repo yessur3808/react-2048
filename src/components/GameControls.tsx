@@ -30,12 +30,12 @@ export const GameControls = ({
   suggestionError,
 }: GameControlsProps) => {
   const suggestionLabel = isSuggesting
-    ? "Analyzing board\u2026"
+    ? "Analyzing the board for the best move..."
     : suggestionError
-      ? `Error: ${suggestionError}`
+      ? `Unable to suggest a move: ${suggestionError}`
       : hasRequestedSuggestion
-        ? toDirectionLabel(suggestedDirection)
-        : 'Click "Get Suggestion"';
+        ? `Best move: ${toDirectionLabel(suggestedDirection)}`
+        : 'Press "Get Suggestion" to see the best next move.';
 
   return (
     <footer className="game-footer">
@@ -80,7 +80,7 @@ export const GameControls = ({
           {isSuggesting ? "Analyzing\u2026" : "Get Suggestion"}
         </button>
         <p className="game-controls__hint" aria-live="polite">
-          Suggested: <span>{suggestionLabel}</span>
+          <span>{suggestionLabel}</span>
         </p>
       </div>
     </footer>

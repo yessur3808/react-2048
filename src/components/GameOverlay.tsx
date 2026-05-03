@@ -6,15 +6,18 @@ type GameOverlayProps = Readonly<{
 }>;
 
 export const GameOverlay = ({ status, onNewGame }: GameOverlayProps) => {
+  const message =
+    status === "won"
+      ? "Great job - you reached 2048!"
+      : "No moves left. Start a new run and try again.";
+
   return (
     <div
       className={`game-overlay game-overlay--${status}`}
       role="status"
       aria-live="polite"
     >
-      <p className="game-overlay__message">
-        {status === "won" ? "You won! 🎉" : "Game over"}
-      </p>
+      <p className="game-overlay__message">{message}</p>
       <button className="game-overlay__btn" onClick={onNewGame}>
         New Game
       </button>

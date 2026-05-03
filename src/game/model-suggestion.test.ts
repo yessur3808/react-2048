@@ -12,6 +12,7 @@ vi.mock("@tensorflow/tfjs", () => {
 
   return {
     loadLayersModel: vi.fn(async () => ({ predict: mockPredict })),
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     tensor2d: vi.fn((_data: number[][], _shape: number[]) => ({
       dispose: mockDispose,
     })),

@@ -209,7 +209,16 @@ function App() {
           <p className="game-key-sidebar__title">Keyboard</p>
           <ul className="game-key-legend">
             <li>
-              <kbd>↑ ↓ ← →</kbd> Move
+              <kbd>↑</kbd> Move Up
+            </li>
+            <li>
+              <kbd>↓</kbd> Move Down
+            </li>
+            <li>
+              <kbd>←</kbd> Move Left
+            </li>
+            <li>
+              <kbd>→</kbd> Move Right
             </li>
             <li>
               <kbd>?</kbd> Get Suggestion

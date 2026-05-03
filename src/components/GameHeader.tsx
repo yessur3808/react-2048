@@ -21,7 +21,9 @@ export const GameHeader = ({
           New Game
         </button>
       </div>
-      <p className="game-subtitle">Use the arrow keys to move tiles.</p>
+      <p className="game-subtitle">
+        Use arrow keys or the move buttons to slide and merge tiles.
+      </p>
       <div className="game-settings-row" aria-label="suggestion mode">
         <span className="game-settings-label">Suggestion mode</span>
         <div
