@@ -172,7 +172,8 @@
 
 .game-overlay__btn,
 .game-new-btn,
-.game-move-btn {
+.game-move-btn,
+.game-suggest-btn {
   padding: 9px 18px;
   border-radius: 6px;
   border: 1px solid #3a4050;
@@ -186,7 +187,8 @@
 
 .game-overlay__btn:hover,
 .game-new-btn:hover,
-.game-move-btn:hover {
+.game-move-btn:hover,
+.game-suggest-btn:hover {
   background: #2e3444;
 }
 
@@ -201,7 +203,16 @@
   cursor: not-allowed;
 }
 
+.game-suggest-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 .game-move-btn:disabled:hover {
+  background: #252a35;
+}
+
+.game-suggest-btn:disabled:hover {
   background: #252a35;
 }
 
@@ -223,12 +234,36 @@
   font-size: 15px;
 }
 
+.game-suggest-btn {
+  grid-column: 1 / -1;
+  min-height: 40px;
+}
+
 .game-move-btn--active {
   background: #6d7fc2;
   color: #f1f3f9;
   border-color: #7f93df;
   transform: translateY(1px);
   box-shadow: 0 0 0 2px rgba(127, 147, 223, 0.35);
+}
+
+.game-move-btn--suggested {
+  border-color: #8ca4da;
+  box-shadow: inset 0 0 0 1px rgba(140, 164, 218, 0.45);
+}
+
+.game-controls__hint {
+  grid-column: 1 / -1;
+  margin: 2px 0 0;
+  text-align: center;
+  font-size: 12px;
+  letter-spacing: 0.01em;
+  color: #8f96a8;
+}
+
+.game-controls__hint span {
+  color: #c8d0e0;
+  font-weight: 600;
 }
 
 .game-move-btn--up {

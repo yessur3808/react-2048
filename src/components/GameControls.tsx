@@ -3,14 +3,32 @@ import type { Direction } from "../game/types";
 type GameControlsProps = Readonly<{
   isPlaying: boolean;
   onMove: (direction: Direction) => void;
+  onRequestSuggestion: () => void;
+  hasRequestedSuggestion: boolean;
+  suggestedDirection: Direction | null;
   getMoveButtonClassName: (direction: Direction) => string;
 }>;
+
+const toDirectionLabel = (direction: Direction | null): string => {
+  if (direction === null) {
+    return "None";
+  }
+
+  return `${direction.charAt(0).toUpperCase()}${direction.slice(1)}`;
+};
 
 export const GameControls = ({
   isPlaying,
   onMove,
+  onRequestSuggestion,
+  hasRequestedSuggestion,
+  suggestedDirection,
   getMoveButtonClassName,
 }: GameControlsProps) => {
+  const suggestionLabel = hasRequestedSuggestion
+    ? toDirectionLabel(suggestedDirection)
+    : 'Click "Get Suggestion"';
+
   return (
     <footer className="game-footer">
       <div className="game-controls" aria-label="game controls">
@@ -46,6 +64,16 @@ export const GameControls = ({
         >
           Right
         </button>
+        <button
+          className="game-suggest-btn"
+          onClick={onRequestSuggestion}
+          disabled={!isPlaying}
+        >
+          Get Suggestion
+        </button>
+        <p className="game-controls__hint" aria-live="polite">
+          Suggested: <span>{suggestionLabel}</span>
+        </p>
       </div>
     </footer>
   );

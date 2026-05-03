@@ -9,6 +9,7 @@ import {
   createInitialBoard,
   getGameStatus,
   moveBoard,
+  suggestMove,
 } from "./game";
 import type { Board, Direction, GameStatus } from "./game/types";
 
@@ -32,13 +33,19 @@ function App() {
   const [activeDirection, setActiveDirection] = useState<Direction | null>(
     null,
   );
+  const [suggestedDirection, setSuggestedDirection] =
+    useState<Direction | null>(null);
+  const [hasRequestedSuggestion, setHasRequestedSuggestion] = useState(false);
   const activeDirectionTimeoutRef = useRef<number | null>(null);
   const status: GameStatus = getGameStatus(board);
   const isPlaying = status === "playing";
 
   const getMoveButtonClassName = (direction: Direction): string => {
     const isActive = activeDirection === direction;
-    return `game-move-btn game-move-btn--${direction}${isActive ? " game-move-btn--active" : ""}`;
+    const isSuggested =
+      hasRequestedSuggestion && suggestedDirection === direction && !isActive;
+
+    return `game-move-btn game-move-btn--${direction}${isActive ? " game-move-btn--active" : ""}${isSuggested ? " game-move-btn--suggested" : ""}`;
   };
 
   // Briefly highlight the matching control for both keyboard and button moves.
@@ -56,6 +63,19 @@ function App() {
 
   const handleNewGame = () => {
     setBoard(createInitialBoard());
+    setHasRequestedSuggestion(false);
+    setSuggestedDirection(null);
+  };
+
+  const handleRequestSuggestion = () => {
+    setHasRequestedSuggestion(true);
+
+    if (!isPlaying) {
+      setSuggestedDirection(null);
+      return;
+    }
+
+    setSuggestedDirection(suggestMove(board));
   };
 
   const handleMove = (direction: Direction) => {
@@ -64,6 +84,9 @@ function App() {
     if (!isPlaying) {
       return;
     }
+
+    setHasRequestedSuggestion(false);
+    setSuggestedDirection(null);
 
     setBoard((currentBoard) => {
       const result = moveBoard(currentBoard, direction);
@@ -121,6 +144,9 @@ function App() {
         <GameControls
           isPlaying={isPlaying}
           onMove={handleMove}
+          onRequestSuggestion={handleRequestSuggestion}
+          hasRequestedSuggestion={hasRequestedSuggestion}
+          suggestedDirection={suggestedDirection}
           getMoveButtonClassName={getMoveButtonClassName}
         />
       </section>
