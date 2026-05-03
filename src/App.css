@@ -30,14 +30,7 @@
   gap: 12px;
 }
 
-.game-kicker {
-  margin: 0;
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: #8f96a8;
-  font-weight: 600;
-}
+
 
 .game-title {
   margin: 6px 0 4px;
@@ -97,6 +90,7 @@
 }
 
 .game-board {
+  position: relative;
   display: grid;
   gap: 8px;
   padding: 8px;
@@ -125,6 +119,31 @@
 
 .tile__value {
   line-height: 1;
+}
+
+.game-board__overlay {
+  position: absolute;
+  inset: 8px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-rows: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  pointer-events: none;
+  z-index: 4;
+}
+
+.tile--moving {
+  animation: tile-slide 130ms ease-out forwards;
+  will-change: transform;
+}
+
+@keyframes tile-slide {
+  to {
+    transform: translate(
+      calc(var(--dx, 0) * (100% + 8px)),
+      calc(var(--dy, 0) * (100% + 8px))
+    );
+  }
 }
 
 .tile--empty {
@@ -216,9 +235,10 @@
   font-size: clamp(28px, 6vw, 40px);
   font-weight: 700;
   color: #f1f3f9;
-  letter-spacing: -0.02em;
+  letter-spacing: 1px;
+  line-height: 1.2;
   text-align: center;
-  max-width: 14ch;
+  max-width: 80%;
 }
 
 .game-overlay__btn,
@@ -241,6 +261,13 @@
 .game-move-btn:hover,
 .game-suggest-btn:hover {
   background: #2e3444;
+}
+
+
+.game-overlay__btn {
+  width: auto;
+  padding: 14px 32pX;
+  font-size: 32px;
 }
 
 .game-new-btn:active {

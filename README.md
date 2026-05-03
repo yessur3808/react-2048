@@ -1,6 +1,9 @@
-# React 2048 Game
+# React-2048
 
-A browser-based implementation of 2048 with two local suggestion engines: heuristic (basic) and offline AI.
+2048 game built with React and TypeScript, including keyboard controls, game-state detection, and offline AI move suggestions.
+
+
+![react-2048 screenshot](public/Screenshot.png)
 
 ## Tech Stack
 
@@ -9,38 +12,72 @@ A browser-based implementation of 2048 with two local suggestion engines: heuris
 - Vite
 - Vitest
 
-## Running Locally
+## Getting Started
 
-```
+### 1. Install dependencies
+
+```bash
 npm install
+```
+
+### 2. Run locally
+
+```bash
 npm run dev
 ```
 
+Then open the local Vite URL shown in your terminal (usually `http://localhost:5173`).
 
-## Running Tests
+### 3. Run tests
 
+```bash
+npm run test:run
 ```
+
+For watch mode:
+
+```bash
 npm test
 ```
+
+### 4. Build for production
+
+```bash
+npm run build
+```
+
 ## Features
 
-- Random initial board generation
-- Move left, right, up, and down
-- Adds a 2 or 4 after each valid move
-- Win detection at 2048
-- Loss detection when no moves are available
-- Request-only move suggestion button
-- Toggle between Heuristic (Basic) & AI suggestion modes
-- Offline AI suggestion (expectimax search), no remote API
+- 4x4 2048 board
+- Randomized initial board setup
+- Left / right / up / down movement
+- Adds a new `2` or `4` after valid moves
+- Win detection (reaching 2048)
+- Loss detection (no legal moves remaining)
+- Keyboard controls
+- Offline AI move suggestion
 
+## AI Move Suggestion
 
-## Current Setup
-- The game uses a 4x4 board.
-- Initial board starts with a random number of `2` tiles.
-- A new tile is added only after a valid move changes the board.
-- Heuristic (Basic) mode uses a local rule-based evaluator.  _(Old School Style)_
-- AI mode uses local expectimax search.
-- No credentials are required because no remote AI service is used.
+The project includes two local suggestion strategies:
 
+- **Basic heuristic suggestion** (old fashioned)
+- **Offline AI model suggestion (TensorFlow.js)**
 
-The AI suggestion feature uses a TensorFlow.js model bundled with the app and loaded locally from the public/models directory. No remote API calls or credentials are required.
+### Brief explanation of the AI heuristic
+
+The basic heuristic evaluates each possible move and scores the resulting board using a weighted combination of:
+
+- Number of empty cells (more space is better)
+- Number of merge opportunities (adjacent equal tiles)
+- Value of the highest tile
+- Bonus if the highest tile is kept in a corner
+- Large penalty if the board becomes immobile
+
+The move with the highest score is suggested.
+
+### Offline AI model
+
+In AI mode, the app loads a local TensorFlow.js model from `public/models/2048/model.json` and predicts directional scores for `left`, `up`, `right`, and `down`. The app then picks the highest-scoring **legal** move.
+
+No external AI API calls or credentials are required.

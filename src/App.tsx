@@ -3,10 +3,13 @@ import "./App.css";
 import { GameBoard } from "./components/GameBoard";
 import { GameControls } from "./components/GameControls";
 import { GameHeader } from "./components/GameHeader";
+import { GameKeyboardLegend } from "./components/GameKeyboardLegend";
+import { GameKeyboardShortcuts } from "./components/GameKeyboardShortcuts";
 import { GameOverlay } from "./components/GameOverlay";
 import {
   addRandomTile,
   createInitialBoard,
+  getMoveTransitions,
   getGameStatus,
   moveBoard,
   suggestBasicMove,
@@ -17,24 +20,29 @@ import type {
   Direction,
   GameStatus,
   SuggestionMode,
+  TileTransition,
 } from "./game/types";
 
-const getDirectionFromKey = (key: string): Direction | null => {
-  switch (key) {
-    case "ArrowLeft":
-      return "left";
-    case "ArrowRight":
-      return "right";
-    case "ArrowUp":
-      return "up";
-    case "ArrowDown":
-      return "down";
-    default:
-      return null;
-  }
+const createDebugWinBoard = (): Board => {
+  return [
+    [2, 4, 8, 16],
+    [32, 64, 128, 256],
+    [512, 1024, 2048, 4],
+    [8, 16, 32, 64],
+  ];
+};
+
+const createDebugLoseBoard = (): Board => {
+  return [
+    [2, 4, 8, 16],
+    [32, 64, 128, 256],
+    [512, 1024, 2, 4],
+    [8, 16, 32, 64],
+  ];
 };
 
 function App() {
+  const MOVE_ANIMATION_MS = 130;
   const [board, setBoard] = useState<Board>(() => createInitialBoard());
   const [activeDirection, setActiveDirection] = useState<Direction | null>(
     null,
@@ -45,7 +53,10 @@ function App() {
   const [suggestionMode, setSuggestionMode] = useState<SuggestionMode>("basic");
   const [isSuggesting, setIsSuggesting] = useState(false);
   const [suggestionError, setSuggestionError] = useState<string | null>(null);
+  const [movingTiles, setMovingTiles] = useState<TileTransition[]>([]);
+  const [isAnimatingMove, setIsAnimatingMove] = useState(false);
   const activeDirectionTimeoutRef = useRef<number | null>(null);
+  const moveAnimationTimeoutRef = useRef<number | null>(null);
   const status: GameStatus = getGameStatus(board);
   const isPlaying = status === "playing";
 
@@ -70,11 +81,23 @@ function App() {
     }, 130);
   };
 
-  const handleNewGame = () => {
-    setBoard(createInitialBoard());
+  const resetSuggestionUi = () => {
     setHasRequestedSuggestion(false);
     setSuggestedDirection(null);
     setSuggestionError(null);
+    setIsSuggesting(false);
+  };
+
+  const handleNewGame = () => {
+    if (moveAnimationTimeoutRef.current !== null) {
+      globalThis.clearTimeout(moveAnimationTimeoutRef.current);
+      moveAnimationTimeoutRef.current = null;
+    }
+
+    setBoard(createInitialBoard());
+    setMovingTiles([]);
+    setIsAnimatingMove(false);
+    resetSuggestionUi();
   };
 
   const handleRequestSuggestion = async () => {
@@ -106,31 +129,66 @@ function App() {
 
   const handleSuggestionModeChange = (mode: SuggestionMode) => {
     setSuggestionMode(mode);
-    setHasRequestedSuggestion(false);
-    setSuggestedDirection(null);
-    setSuggestionError(null);
+    resetSuggestionUi();
   };
 
   const handleMove = (direction: Direction) => {
+    if (isAnimatingMove) {
+      return;
+    }
+
     flashDirection(direction);
 
     if (!isPlaying) {
       return;
     }
 
-    setHasRequestedSuggestion(false);
-    setSuggestedDirection(null);
-    setSuggestionError(null);
+    resetSuggestionUi();
+    const result = moveBoard(board, direction);
 
-    setBoard((currentBoard) => {
-      const result = moveBoard(currentBoard, direction);
+    if (!result.changed) {
+      return;
+    }
 
-      if (!result.changed) {
-        return currentBoard;
-      }
+    const transitions = getMoveTransitions(board, direction);
 
-      return addRandomTile(result.board);
-    });
+    setMovingTiles(transitions);
+    setIsAnimatingMove(true);
+
+    if (moveAnimationTimeoutRef.current !== null) {
+      globalThis.clearTimeout(moveAnimationTimeoutRef.current);
+    }
+
+    moveAnimationTimeoutRef.current = globalThis.setTimeout(() => {
+      setBoard(addRandomTile(result.board));
+      setMovingTiles([]);
+      setIsAnimatingMove(false);
+      moveAnimationTimeoutRef.current = null;
+    }, MOVE_ANIMATION_MS);
+  };
+
+  const handleForceDebugWin = () => {
+    if (moveAnimationTimeoutRef.current !== null) {
+      globalThis.clearTimeout(moveAnimationTimeoutRef.current);
+      moveAnimationTimeoutRef.current = null;
+    }
+
+    setBoard(createDebugWinBoard());
+    setMovingTiles([]);
+    setIsAnimatingMove(false);
+    resetSuggestionUi();
+  };
+
+  const handleForceDebugLose = () => {
+    if (moveAnimationTimeoutRef.current !== null) {
+      globalThis.clearTimeout(moveAnimationTimeoutRef.current);
+      moveAnimationTimeoutRef.current = null;
+    }
+
+    setBoard(createDebugLoseBoard());
+    setMovingTiles([]);
+    setIsAnimatingMove(false);
+    resetSuggestionUi();
   };
 
   useEffect(() => {
@@ -138,49 +196,25 @@ function App() {
       if (activeDirectionTimeoutRef.current !== null) {
         globalThis.clearTimeout(activeDirectionTimeoutRef.current);
       }
+
+      if (moveAnimationTimeoutRef.current !== null) {
+        globalThis.clearTimeout(moveAnimationTimeoutRef.current);
+      }
     };
   }, []);
 
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "n") {
-        event.preventDefault();
-        handleNewGame();
-        return;
-      }
-
-      if (event.key === "?") {
-        event.preventDefault();
-        if (isPlaying && !isSuggesting) {
-          handleRequestSuggestion();
-        }
-        return;
-      }
-
-      if (!isPlaying) {
-        return;
-      }
-
-      const direction = getDirectionFromKey(event.key);
-
-      if (direction === null) {
-        return;
-      }
-
-      event.preventDefault();
-      handleMove(direction);
-    };
-
-    globalThis.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      globalThis.removeEventListener("keydown", handleKeyDown);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPlaying, isSuggesting]);
-
   return (
     <main className="app-root">
+      <GameKeyboardShortcuts
+        isPlaying={isPlaying}
+        isSuggesting={isSuggesting}
+        isAnimatingMove={isAnimatingMove}
+        onNewGame={handleNewGame}
+        onRequestSuggestion={handleRequestSuggestion}
+        onMove={handleMove}
+        onForceDebugWin={handleForceDebugWin}
+        onForceDebugLose={handleForceDebugLose}
+      />
       <div className="game-layout">
         <section className="game-shell" aria-label="2048 game container">
           <GameHeader
@@ -189,13 +223,13 @@ function App() {
             onSuggestionModeChange={handleSuggestionModeChange}
           />
           <div className="game-board-wrapper">
-            <GameBoard board={board} />
+            <GameBoard board={board} movingTiles={movingTiles} />
             {!isPlaying && (
               <GameOverlay status={status} onNewGame={handleNewGame} />
             )}
           </div>
           <GameControls
-            isPlaying={isPlaying}
+            isPlaying={isPlaying && !isAnimatingMove}
             onMove={handleMove}
             onRequestSuggestion={handleRequestSuggestion}
             hasRequestedSuggestion={hasRequestedSuggestion}
@@ -205,29 +239,7 @@ function App() {
             suggestionError={suggestionError}
           />
         </section>
-        <aside className="game-key-sidebar" aria-label="keyboard shortcuts">
-          <p className="game-key-sidebar__title">Keyboard</p>
-          <ul className="game-key-legend">
-            <li>
-              <kbd>↑</kbd> Move Up
-            </li>
-            <li>
-              <kbd>↓</kbd> Move Down
-            </li>
-            <li>
-              <kbd>←</kbd> Move Left
-            </li>
-            <li>
-              <kbd>→</kbd> Move Right
-            </li>
-            <li>
-              <kbd>?</kbd> Get Suggestion
-            </li>
-            <li>
-              <kbd>N</kbd> New Game
-            </li>
-          </ul>
-        </aside>
+        <GameKeyboardLegend />
       </div>
     </main>
   );

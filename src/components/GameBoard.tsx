@@ -1,8 +1,10 @@
-import type { Board, Cell } from "../game/types";
+import type { CSSProperties } from "react";
+import type { Board, Cell, TileTransition } from "../game/types";
 import { Tile } from "./Tile";
 
 type GameBoardProps = Readonly<{
   board: Board;
+  movingTiles?: TileTransition[];
 }>;
 
 type KeyedCell = Readonly<{
@@ -51,18 +53,48 @@ const toKeyedRows = (board: Board): KeyedRow[] => {
   return rows;
 };
 
-export const GameBoard = ({ board }: GameBoardProps) => {
+export const GameBoard = ({ board, movingTiles = [] }: GameBoardProps) => {
   const rows = toKeyedRows(board);
+  const hiddenSourcePositions = new Set(
+    movingTiles.map((tile) => `${tile.fromRow}-${tile.fromCol}`),
+  );
 
   return (
     <section className="game-board" aria-label="Game board">
-      {rows.map((row) => (
+      {rows.map((row, rowIndex) => (
         <div className="game-board__row" key={row.key}>
-          {row.cells.map((cell) => (
-            <Tile key={cell.key} value={cell.value} />
-          ))}
+          {row.cells.map((cell, colIndex) => {
+            const shouldHideSource = hiddenSourcePositions.has(
+              `${rowIndex}-${colIndex}`,
+            );
+
+            return (
+              <Tile key={cell.key} value={shouldHideSource ? null : cell.value} />
+            );
+          })}
         </div>
       ))}
+      {movingTiles.length > 0 && (
+        <div className="game-board__overlay" aria-hidden="true">
+          {movingTiles.map((tile) => {
+            const style = {
+              gridRow: tile.fromRow + 1,
+              gridColumn: tile.fromCol + 1,
+              "--dx": String(tile.toCol - tile.fromCol),
+              "--dy": String(tile.toRow - tile.fromRow),
+            } as CSSProperties;
+
+            return (
+              <Tile
+                key={tile.key}
+                value={tile.value}
+                className="tile--moving"
+                style={style}
+              />
+            );
+          })}
+        </div>
+      )}
     </section>
   );
 };

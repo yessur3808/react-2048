@@ -10,3 +10,12 @@ export type MoveResult = {
   board: Board;
   changed: boolean;
 };
+
+export type TileTransition = {
+  key: string;
+  value: number;
+  fromRow: number;
+  fromCol: number;
+  toRow: number;
+  toCol: number;
+};
