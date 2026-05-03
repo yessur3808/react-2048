@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { evaluateBoard, suggestMove } from "./ai";
+import { evaluateBasicBoard, suggestBasicMove } from "./basic-suggestion";
 
-describe("offline AI move suggestion", () => {
-  it("suggestMove returns null when no directions produce a change", () => {
+describe("basic move suggestion", () => {
+  it("returns null when no directions produce a change", () => {
     const board = [
       [2, 4, 2, 4],
       [4, 2, 4, 2],
@@ -11,10 +11,10 @@ describe("offline AI move suggestion", () => {
       [4, 2, 4, 2],
     ];
 
-    expect(suggestMove(board)).toBeNull();
+    expect(suggestBasicMove(board)).toBeNull();
   });
 
-  it("suggestMove deterministically picks the best valid direction", () => {
+  it("deterministically picks the best valid direction", () => {
     const board = [
       [null, 2, null, null],
       [null, null, null, null],
@@ -22,10 +22,10 @@ describe("offline AI move suggestion", () => {
       [null, null, null, null],
     ];
 
-    expect(suggestMove(board)).toBe("left");
+    expect(suggestBasicMove(board)).toBe("left");
   });
 
-  it("suggestMove ignores invalid moves where changed is false", () => {
+  it("ignores invalid moves where changed is false", () => {
     const board = [
       [2, 4, 8, 16],
       [32, 64, 128, 256],
@@ -33,7 +33,7 @@ describe("offline AI move suggestion", () => {
       [8, 16, 32, null],
     ];
 
-    const suggestion = suggestMove(board);
+    const suggestion = suggestBasicMove(board);
 
     expect(suggestion).not.toBe("left");
     expect(suggestion).not.toBe("up");
@@ -41,7 +41,7 @@ describe("offline AI move suggestion", () => {
   });
 });
 
-describe("offline AI board evaluation", () => {
+describe("basic board evaluation", () => {
   it("rewards boards with more empty cells", () => {
     const sparseBoard = [
       [2, null, null, null],
@@ -57,8 +57,8 @@ describe("offline AI board evaluation", () => {
       [8, 16, 32, 64],
     ];
 
-    expect(evaluateBoard(sparseBoard)).toBeGreaterThan(
-      evaluateBoard(denseBoard),
+    expect(evaluateBasicBoard(sparseBoard)).toBeGreaterThan(
+      evaluateBasicBoard(denseBoard),
     );
   });
 
@@ -77,8 +77,8 @@ describe("offline AI board evaluation", () => {
       [null, null, null, null],
     ];
 
-    expect(evaluateBoard(mergeFriendlyBoard)).toBeGreaterThan(
-      evaluateBoard(noMergeBoard),
+    expect(evaluateBasicBoard(mergeFriendlyBoard)).toBeGreaterThan(
+      evaluateBasicBoard(noMergeBoard),
     );
   });
 
@@ -97,8 +97,8 @@ describe("offline AI board evaluation", () => {
       [null, null, null, null],
     ];
 
-    expect(evaluateBoard(cornerMaxBoard)).toBeGreaterThan(
-      evaluateBoard(centerMaxBoard),
+    expect(evaluateBasicBoard(cornerMaxBoard)).toBeGreaterThan(
+      evaluateBasicBoard(centerMaxBoard),
     );
   });
 
@@ -117,8 +117,8 @@ describe("offline AI board evaluation", () => {
       [null, null, null, null],
     ];
 
-    expect(evaluateBoard(largerMaxBoard)).toBeGreaterThan(
-      evaluateBoard(smallerMaxBoard),
+    expect(evaluateBasicBoard(largerMaxBoard)).toBeGreaterThan(
+      evaluateBasicBoard(smallerMaxBoard),
     );
   });
 
@@ -137,8 +137,8 @@ describe("offline AI board evaluation", () => {
       [4, 2, 4, null],
     ];
 
-    expect(evaluateBoard(lockedBoard)).toBeLessThan(
-      evaluateBoard(playableBoard),
+    expect(evaluateBasicBoard(lockedBoard)).toBeLessThan(
+      evaluateBasicBoard(playableBoard),
     );
   });
 });

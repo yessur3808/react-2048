@@ -1,10 +1,17 @@
 import type { MouseEventHandler } from "react";
+import type { SuggestionMode } from "../game/types";
 
 type GameHeaderProps = Readonly<{
   onNewGame: MouseEventHandler<HTMLButtonElement>;
+  suggestionMode: SuggestionMode;
+  onSuggestionModeChange: (mode: SuggestionMode) => void;
 }>;
 
-export const GameHeader = ({ onNewGame }: GameHeaderProps) => {
+export const GameHeader = ({
+  onNewGame,
+  suggestionMode,
+  onSuggestionModeChange,
+}: GameHeaderProps) => {
   return (
     <header className="game-header">
       <p className="game-kicker">React 2048</p>
@@ -15,6 +22,27 @@ export const GameHeader = ({ onNewGame }: GameHeaderProps) => {
         </button>
       </div>
       <p className="game-subtitle">Use the arrow keys to move tiles.</p>
+      <div className="game-settings-row" aria-label="suggestion mode">
+        <span className="game-settings-label">Suggestion mode</span>
+        <div
+          className="game-mode-toggle"
+          role="group"
+          aria-label="Select suggestion mode"
+        >
+          <button
+            className={`game-mode-toggle__btn${suggestionMode === "basic" ? " game-mode-toggle__btn--active" : ""}`}
+            onClick={() => onSuggestionModeChange("basic")}
+          >
+            Basic
+          </button>
+          <button
+            className={`game-mode-toggle__btn${suggestionMode === "ai" ? " game-mode-toggle__btn--active" : ""}`}
+            onClick={() => onSuggestionModeChange("ai")}
+          >
+            AI
+          </button>
+        </div>
+      </div>
     </header>
   );
 };

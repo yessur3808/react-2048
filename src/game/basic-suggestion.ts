@@ -76,7 +76,7 @@ const hasMaxTileInCorner = (board: Board, maxTile: number): boolean => {
   );
 };
 
-export const evaluateBoard = (board: Board): number => {
+export const evaluateBasicBoard = (board: Board): number => {
   const emptyCells = countEmptyCells(board);
   const mergeCandidates = countAdjacentMergeCandidates(board);
   const maxTile = getMaximumTile(board);
@@ -98,7 +98,7 @@ export const evaluateBoard = (board: Board): number => {
   );
 };
 
-export const suggestMove = (board: Board): Direction | null => {
+export const suggestBasicMove = (board: Board): Direction | null => {
   let bestDirection: Direction | null = null;
   let bestScore = Number.NEGATIVE_INFINITY;
 
@@ -109,7 +109,7 @@ export const suggestMove = (board: Board): Direction | null => {
       continue;
     }
 
-    const score = evaluateBoard(result.board);
+    const score = evaluateBasicBoard(result.board);
 
     if (score > bestScore) {
       bestScore = score;

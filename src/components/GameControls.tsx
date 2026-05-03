@@ -7,6 +7,8 @@ type GameControlsProps = Readonly<{
   hasRequestedSuggestion: boolean;
   suggestedDirection: Direction | null;
   getMoveButtonClassName: (direction: Direction) => string;
+  isSuggesting: boolean;
+  suggestionError: string | null;
 }>;
 
 const toDirectionLabel = (direction: Direction | null): string => {
@@ -24,10 +26,16 @@ export const GameControls = ({
   hasRequestedSuggestion,
   suggestedDirection,
   getMoveButtonClassName,
+  isSuggesting,
+  suggestionError,
 }: GameControlsProps) => {
-  const suggestionLabel = hasRequestedSuggestion
-    ? toDirectionLabel(suggestedDirection)
-    : 'Click "Get Suggestion"';
+  const suggestionLabel = isSuggesting
+    ? "Analyzing board\u2026"
+    : suggestionError
+      ? `Error: ${suggestionError}`
+      : hasRequestedSuggestion
+        ? toDirectionLabel(suggestedDirection)
+        : 'Click "Get Suggestion"';
 
   return (
     <footer className="game-footer">
@@ -67,9 +75,9 @@ export const GameControls = ({
         <button
           className="game-suggest-btn"
           onClick={onRequestSuggestion}
-          disabled={!isPlaying}
+          disabled={!isPlaying || isSuggesting}
         >
-          Get Suggestion
+          {isSuggesting ? "Analyzing\u2026" : "Get Suggestion"}
         </button>
         <p className="game-controls__hint" aria-live="polite">
           Suggested: <span>{suggestionLabel}</span>
