@@ -102,10 +102,10 @@ describe("board movement", () => {
     ];
     const snapshot = board.map((row) => [...row]);
 
-    void moveLeft(board);
-    void moveRight(board);
-    void moveUp(board);
-    void moveDown(board);
+    moveLeft(board);
+    moveRight(board);
+    moveUp(board);
+    moveDown(board);
 
     expect(board).toEqual(snapshot);
   });

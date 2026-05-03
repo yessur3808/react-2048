@@ -83,7 +83,7 @@ const mergeLineEntriesLeft = (entries: LineEntry[]): MergedCell[] => {
     const current = entries[index];
     const next = entries[index + 1];
 
-    if (next !== undefined && current.value === next.value) {
+    if (next?.value === current.value) {
       merged.push({
         value: current.value * 2,
         sources: [current, next],

@@ -29,13 +29,19 @@ export const GameControls = ({
   isSuggesting,
   suggestionError,
 }: GameControlsProps) => {
-  const suggestionLabel = isSuggesting
-    ? "Analyzing the board for the best move..."
-    : suggestionError
-      ? `Unable to suggest a move: ${suggestionError}`
-      : hasRequestedSuggestion
-        ? `Best move: ${toDirectionLabel(suggestedDirection)}`
-        : 'Press "Get Suggestion" to see the best next move.';
+  let suggestionLabel = 'Press "Get Suggestion" to see the best next move.';
+
+  if (hasRequestedSuggestion) {
+    suggestionLabel = `Best move: ${toDirectionLabel(suggestedDirection)}`;
+  }
+
+  if (suggestionError !== null) {
+    suggestionLabel = `Unable to suggest a move: ${suggestionError}`;
+  }
+
+  if (isSuggesting) {
+    suggestionLabel = "Analyzing the board for the best move...";
+  }
 
   return (
     <footer className="game-footer">

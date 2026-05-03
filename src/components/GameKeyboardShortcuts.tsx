@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import type { Direction } from "../game/types";
 
 type GameKeyboardShortcutsProps = Readonly<{
@@ -40,15 +40,59 @@ export const GameKeyboardShortcuts = ({
   onForceDebugWin,
   onForceDebugLose,
 }: GameKeyboardShortcutsProps) => {
+  const latestStateRef = useRef({
+    isPlaying,
+    isSuggesting,
+    isAnimatingMove,
+    onNewGame,
+    onRequestSuggestion,
+    onMove,
+    onForceDebugWin,
+    onForceDebugLose,
+  });
+
+  useEffect(() => {
+    latestStateRef.current = {
+      isPlaying,
+      isSuggesting,
+      isAnimatingMove,
+      onNewGame,
+      onRequestSuggestion,
+      onMove,
+      onForceDebugWin,
+      onForceDebugLose,
+    };
+  }, [
+    isPlaying,
+    isSuggesting,
+    isAnimatingMove,
+    onNewGame,
+    onRequestSuggestion,
+    onMove,
+    onForceDebugWin,
+    onForceDebugLose,
+  ]);
+
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
+      const {
+        isPlaying: latestIsPlaying,
+        isSuggesting: latestIsSuggesting,
+        isAnimatingMove: latestIsAnimatingMove,
+        onNewGame: latestOnNewGame,
+        onRequestSuggestion: latestOnRequestSuggestion,
+        onMove: latestOnMove,
+        onForceDebugWin: latestOnForceDebugWin,
+        onForceDebugLose: latestOnForceDebugLose,
+      } = latestStateRef.current;
+
       if (
         ENABLE_DEBUG_SHORTCUTS &&
         event.shiftKey &&
         event.key.toLowerCase() === "w"
       ) {
         event.preventDefault();
-        onForceDebugWin();
+        latestOnForceDebugWin();
         return;
       }
 
@@ -58,25 +102,25 @@ export const GameKeyboardShortcuts = ({
         event.key.toLowerCase() === "l"
       ) {
         event.preventDefault();
-        onForceDebugLose();
+        latestOnForceDebugLose();
         return;
       }
 
       if (event.key === "n") {
         event.preventDefault();
-        onNewGame();
+        latestOnNewGame();
         return;
       }
 
       if (event.key === "?") {
         event.preventDefault();
-        if (isPlaying && !isSuggesting && !isAnimatingMove) {
-          onRequestSuggestion();
+        if (latestIsPlaying && !latestIsSuggesting && !latestIsAnimatingMove) {
+          latestOnRequestSuggestion();
         }
         return;
       }
 
-      if (!isPlaying || isAnimatingMove) {
+      if (!latestIsPlaying || latestIsAnimatingMove) {
         return;
       }
 
@@ -87,7 +131,7 @@ export const GameKeyboardShortcuts = ({
       }
 
       event.preventDefault();
-      onMove(direction);
+      latestOnMove(direction);
     };
 
     globalThis.addEventListener("keydown", handleKeyDown);
@@ -95,16 +139,7 @@ export const GameKeyboardShortcuts = ({
     return () => {
       globalThis.removeEventListener("keydown", handleKeyDown);
     };
-  }, [
-    isPlaying,
-    isSuggesting,
-    isAnimatingMove,
-    onForceDebugLose,
-    onForceDebugWin,
-    onMove,
-    onNewGame,
-    onRequestSuggestion,
-  ]);
+  }, []);
 
   return null;
 };

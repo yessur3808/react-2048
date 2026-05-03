@@ -14,6 +14,11 @@
 
 ## Getting Started
 
+### Requirements
+
+- Node.js 18+
+- npm 9+
+
 ### 1. Install dependencies
 
 ```bash
@@ -45,6 +50,15 @@ npm test
 ```bash
 npm run build
 ```
+
+## AI Model Prerequisites
+
+Offline AI suggestions require local model files at:
+
+- `public/models/2048/model.json`
+- `public/models/2048/*.bin`
+
+If these files are missing, the game still runs normally, but AI suggestions will not be available. See `public/models/2048/README.md` for model format details.
 
 ## Features
 
