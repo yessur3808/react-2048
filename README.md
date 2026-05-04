@@ -1,6 +1,6 @@
 # React-2048
 
-2048 game built with React and TypeScript, including keyboard controls, game-state detection, and offline AI move suggestions.
+2048 game built with React and TypeScript, including keyboard controls, game-state detection, and offline AI move suggestions. (In reference to [play2048.co](https://play2048.co/classic))
 
 
 ![react-2048 screenshot](public/Screenshot.png)
@@ -16,40 +16,108 @@
 
 ### Requirements
 
-- Node.js 18+
-- npm 9+
+| Tool | Version |
+|------|---------|
+| Node.js | >=20.19.0 (LTS lines 20, 22, and 24 all work) |
+| npm | >=10.0.0 |
 
-### 1. Install dependencies
+> **These are enforced.** Running `npm install` with an older version will print a clear error and exit before installing anything.
+
+---
+
+### Step 1 — Get the right Node.js version
+
+If you use [nvm](https://github.com/nvm-sh/nvm) (recommended), the repo ships a `.nvmrc` file so you can switch with a single command:
+
+```bash
+nvm install   # downloads the pinned version if you don't have it yet
+nvm use       # switches to it for this session
+```
+
+Verify you are on a compatible version:
+
+```bash
+node -v   # should be v20.19.0 or newer
+npm -v    # should be 10.0.0 or newer
+```
+
+If you don't use nvm, download Node.js directly from [nodejs.org](https://nodejs.org). Any current LTS release (20, 22, or 24) works.
+
+---
+
+### Step 2 — Clone the repository
+
+```bash
+git clone https://github.com/yessur3808/react-2048.git
+cd react-2048
+```
+
+---
+
+### Step 3 — Install dependencies
 
 ```bash
 npm install
 ```
 
-### 2. Run locally
+The preinstall script checks your Node.js and npm versions automatically. If they don't meet the minimum requirements, the install will stop with a message explaining what to fix.
+
+---
+
+### Step 4 — Start the development server
 
 ```bash
 npm run dev
 ```
 
-Then open the local Vite URL shown in your terminal (usually `http://localhost:5173`).
+Open the URL printed in your terminal — usually `http://localhost:5173` — in any modern browser.
 
-### 3. Run tests
+> **Hot reload is enabled.** Any file you edit will update the browser instantly without a full page refresh.
+
+---
+
+### Step 5 — Run the tests
+
+Run the full test suite once:
 
 ```bash
 npm run test:run
 ```
 
-For watch mode:
+Run tests in watch mode (re-runs on every file save, useful while developing):
 
 ```bash
 npm test
 ```
 
-### 4. Build for production
+---
+
+### Step 6 — Build for production
+
+Compile TypeScript and bundle the app into the `dist/` folder:
 
 ```bash
 npm run build
 ```
+
+Preview the production build locally before deploying:
+
+```bash
+npm run preview
+```
+
+---
+
+### Available scripts at a glance
+
+| Command | What it does |
+|---------|-------------|
+| `npm run dev` | Start local dev server with hot reload |
+| `npm run build` | Type-check and bundle for production |
+| `npm run preview` | Serve the production build locally |
+| `npm run lint` | Run ESLint across the whole project |
+| `npm run test` | Run tests in interactive watch mode |
+| `npm run test:run` | Run tests once and exit |
 
 ## AI Model Prerequisites
 
