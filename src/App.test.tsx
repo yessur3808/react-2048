@@ -15,7 +15,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 afterEach(() => {
   cleanup();
 });
-import App from "./App";
+import App, { createDebugLoseBoard, createDebugWinBoard } from "./App";
 import type { Board, Direction } from "./game/types";
 
 // ─── Shared test fixtures ────────────────────────────────────────────────────
@@ -41,23 +41,13 @@ const PACKED_NO_LEFT_BOARD: Board = [
 ];
 
 /** Contains a 2048 tile — getGameStatus returns "won". */
-const WON_BOARD: Board = [
-  [2, 4, 8, 16],
-  [32, 64, 128, 256],
-  [512, 1024, 2048, 4],
-  [8, 16, 32, 64],
-];
+const WON_BOARD: Board = createDebugWinBoard();
 
 /**
  * Fully interleaved, no adjacent equals, no nulls — getGameStatus returns
  * "lost" (hasLost = !hasWon && !canMove).
  */
-const LOST_BOARD: Board = [
-  [2, 4, 8, 16],
-  [32, 64, 128, 256],
-  [512, 1024, 2, 4],
-  [8, 16, 32, 64],
-];
+const LOST_BOARD: Board = createDebugLoseBoard();
 
 // ─── Module mocks ────────────────────────────────────────────────────────────
 
@@ -87,13 +77,30 @@ const flushMicrotasks = async () => {
   }
 };
 
+const getGameModule = async () => import("./game");
+
+const setInitialBoard = async (board: Board) => {
+  const game = await getGameModule();
+  vi.mocked(game.createInitialBoard).mockReturnValue(board);
+  return game;
+};
+
+const expectControlsDisabled = () => {
+  expect(screen.getByRole("button", { name: /move up/i })).toBeDisabled();
+  expect(screen.getByRole("button", { name: /move down/i })).toBeDisabled();
+  expect(screen.getByRole("button", { name: /move left/i })).toBeDisabled();
+  expect(screen.getByRole("button", { name: /move right/i })).toBeDisabled();
+  expect(
+    screen.getByRole("button", { name: /get suggestion/i }),
+  ).toBeDisabled();
+};
+
 // ─── Random tile tests ───────────────────────────────────────────────────────
 
 describe("random tile — only added after a valid (changed) move", () => {
   beforeEach(async () => {
     vi.useFakeTimers();
-    const game = await import("./game");
-    vi.mocked(game.createInitialBoard).mockReturnValue(MOVABLE_BOARD);
+    const game = await setInitialBoard(MOVABLE_BOARD);
     vi.mocked(game.addRandomTile).mockImplementation((board: Board) => board);
     vi.mocked(game.addRandomTile).mockClear();
   });
@@ -103,8 +110,7 @@ describe("random tile — only added after a valid (changed) move", () => {
   });
 
   it("does NOT call addRandomTile when the move does not change the board (changed = false)", async () => {
-    const game = await import("./game");
-    vi.mocked(game.createInitialBoard).mockReturnValue(PACKED_NO_LEFT_BOARD);
+    const game = await setInitialBoard(PACKED_NO_LEFT_BOARD);
 
     render(<App />);
 
@@ -120,8 +126,7 @@ describe("random tile — only added after a valid (changed) move", () => {
   });
 
   it("calls addRandomTile exactly once after the animation delay when the move changes the board (changed = true)", async () => {
-    const game = await import("./game");
-    vi.mocked(game.createInitialBoard).mockReturnValue(MOVABLE_BOARD);
+    const game = await setInitialBoard(MOVABLE_BOARD);
 
     render(<App />);
 
@@ -146,29 +151,20 @@ describe("random tile — only added after a valid (changed) move", () => {
 
 describe("game controls are disabled when status is not 'playing'", () => {
   beforeEach(async () => {
-    const game = await import("./game");
     // Reset to a neutral board first so each test can override cleanly.
-    vi.mocked(game.createInitialBoard).mockReturnValue(MOVABLE_BOARD);
+    await setInitialBoard(MOVABLE_BOARD);
   });
 
   it("all move buttons and Get Suggestion are disabled on a won board", async () => {
-    const game = await import("./game");
-    vi.mocked(game.createInitialBoard).mockReturnValue(WON_BOARD);
+    await setInitialBoard(WON_BOARD);
 
     render(<App />);
 
-    expect(screen.getByRole("button", { name: /move up/i })).toBeDisabled();
-    expect(screen.getByRole("button", { name: /move down/i })).toBeDisabled();
-    expect(screen.getByRole("button", { name: /move left/i })).toBeDisabled();
-    expect(screen.getByRole("button", { name: /move right/i })).toBeDisabled();
-    expect(
-      screen.getByRole("button", { name: /get suggestion/i }),
-    ).toBeDisabled();
+    expectControlsDisabled();
   });
 
   it("renders a won overlay message on a won board", async () => {
-    const game = await import("./game");
-    vi.mocked(game.createInitialBoard).mockReturnValue(WON_BOARD);
+    await setInitialBoard(WON_BOARD);
 
     render(<App />);
 
@@ -176,23 +172,15 @@ describe("game controls are disabled when status is not 'playing'", () => {
   });
 
   it("all move buttons and Get Suggestion are disabled on a lost board", async () => {
-    const game = await import("./game");
-    vi.mocked(game.createInitialBoard).mockReturnValue(LOST_BOARD);
+    await setInitialBoard(LOST_BOARD);
 
     render(<App />);
 
-    expect(screen.getByRole("button", { name: /move up/i })).toBeDisabled();
-    expect(screen.getByRole("button", { name: /move down/i })).toBeDisabled();
-    expect(screen.getByRole("button", { name: /move left/i })).toBeDisabled();
-    expect(screen.getByRole("button", { name: /move right/i })).toBeDisabled();
-    expect(
-      screen.getByRole("button", { name: /get suggestion/i }),
-    ).toBeDisabled();
+    expectControlsDisabled();
   });
 
   it("renders a lost overlay message on a lost board", async () => {
-    const game = await import("./game");
-    vi.mocked(game.createInitialBoard).mockReturnValue(LOST_BOARD);
+    await setInitialBoard(LOST_BOARD);
 
     render(<App />);
 
@@ -204,8 +192,7 @@ describe("game controls are disabled when status is not 'playing'", () => {
 
 describe("AI suggestion — model load failure shows error in UI", () => {
   beforeEach(async () => {
-    const game = await import("./game");
-    vi.mocked(game.createInitialBoard).mockReturnValue(MOVABLE_BOARD);
+    await setInitialBoard(MOVABLE_BOARD);
   });
 
   it("displays the error message in the controls hint when suggestAiMove rejects", async () => {
@@ -231,8 +218,7 @@ describe("AI suggestion — model load failure shows error in UI", () => {
 describe("race condition — stale AI suggestion is discarded after user moves", () => {
   beforeEach(async () => {
     vi.useFakeTimers();
-    const game = await import("./game");
-    vi.mocked(game.createInitialBoard).mockReturnValue(MOVABLE_BOARD);
+    const game = await setInitialBoard(MOVABLE_BOARD);
     vi.mocked(game.addRandomTile).mockImplementation((board: Board) => board);
   });
 

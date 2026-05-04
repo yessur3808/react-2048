@@ -19,6 +19,33 @@ vi.mock("@tensorflow/tfjs", () => {
   };
 });
 
+const mockTfWithScores = (scores: number[]) => {
+  vi.doMock("@tensorflow/tfjs", () => {
+    const mockDispose = vi.fn();
+    return {
+      loadLayersModel: vi.fn(async () => ({
+        predict: vi.fn(() => ({
+          data: async () => new Float32Array(scores),
+          dispose: mockDispose,
+        })),
+      })),
+      tensor2d: vi.fn(() => ({ dispose: mockDispose })),
+    };
+  });
+};
+
+const mockTfLoadFailure = (message: string, loadSpy?: ReturnType<typeof vi.fn>) => {
+  const loadLayersModel =
+    loadSpy ?? vi.fn().mockRejectedValue(new Error(message));
+
+  vi.doMock("@tensorflow/tfjs", () => ({
+    loadLayersModel,
+    tensor2d: vi.fn(() => ({ dispose: vi.fn() })),
+  }));
+
+  return loadLayersModel;
+};
+
 describe("suggestAiMove", () => {
   beforeEach(() => {
     vi.resetModules();
@@ -90,18 +117,7 @@ describe("suggestAiMove - adversarial move filtering", () => {
     // Col 3: [16,256,4,null] → no adjacent equals, already top-packed → up illegal.
     // right: row 3 [8,16,32,null] → shifts right → [null,8,16,32] → changed ✓
     // Ranking: left(0.9) skip, up(0.8) skip, right(0.7) → return "right"
-    vi.doMock("@tensorflow/tfjs", () => {
-      const mockDispose = vi.fn();
-      return {
-        loadLayersModel: vi.fn(async () => ({
-          predict: vi.fn(() => ({
-            data: async () => new Float32Array([0.9, 0.8, 0.7, 0.6]),
-            dispose: mockDispose,
-          })),
-        })),
-        tensor2d: vi.fn(() => ({ dispose: mockDispose })),
-      };
-    });
+    mockTfWithScores([0.9, 0.8, 0.7, 0.6]);
 
     const { suggestAiMove } = await import("./model-suggestion");
 
@@ -123,18 +139,7 @@ describe("suggestAiMove - adversarial move filtering", () => {
     // right: same → illegal.
     // up: cols already packed at top (rows 0-2 non-null, row 3 null) → no change → illegal.
     // down: col 0 [2,32,512,null] → moveDown → [null,2,32,512] → changed ✓ → legal.
-    vi.doMock("@tensorflow/tfjs", () => {
-      const mockDispose = vi.fn();
-      return {
-        loadLayersModel: vi.fn(async () => ({
-          predict: vi.fn(() => ({
-            data: async () => new Float32Array([0.4, 0.3, 0.2, 0.1]),
-            dispose: mockDispose,
-          })),
-        })),
-        tensor2d: vi.fn(() => ({ dispose: mockDispose })),
-      };
-    });
+    mockTfWithScores([0.4, 0.3, 0.2, 0.1]);
 
     const { suggestAiMove } = await import("./model-suggestion");
 
@@ -151,18 +156,7 @@ describe("suggestAiMove - adversarial move filtering", () => {
 
   it("returns null when all four directions are illegal regardless of scores", async () => {
     // Uniform high scores — but board is a fully interleaved lock (no moves possible).
-    vi.doMock("@tensorflow/tfjs", () => {
-      const mockDispose = vi.fn();
-      return {
-        loadLayersModel: vi.fn(async () => ({
-          predict: vi.fn(() => ({
-            data: async () => new Float32Array([0.9, 0.8, 0.7, 0.6]),
-            dispose: mockDispose,
-          })),
-        })),
-        tensor2d: vi.fn(() => ({ dispose: mockDispose })),
-      };
-    });
+    mockTfWithScores([0.9, 0.8, 0.7, 0.6]);
 
     const { suggestAiMove } = await import("./model-suggestion");
 
@@ -184,10 +178,7 @@ describe("suggestAiMove - model loading failure", () => {
   });
 
   it("throws when loadLayersModel rejects", async () => {
-    vi.doMock("@tensorflow/tfjs", () => ({
-      loadLayersModel: vi.fn().mockRejectedValue(new Error("Network error")),
-      tensor2d: vi.fn(() => ({ dispose: vi.fn() })),
-    }));
+    mockTfLoadFailure("Network error");
 
     const { suggestAiMove } = await import("./model-suggestion");
 
@@ -206,10 +197,7 @@ describe("suggestAiMove - model loading failure", () => {
       .fn()
       .mockRejectedValue(new Error("Network error"));
 
-    vi.doMock("@tensorflow/tfjs", () => ({
-      loadLayersModel: mockLoadLayersModel,
-      tensor2d: vi.fn(() => ({ dispose: vi.fn() })),
-    }));
+    mockTfLoadFailure("Network error", mockLoadLayersModel);
 
     const { suggestAiMove } = await import("./model-suggestion");
 

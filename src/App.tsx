@@ -23,22 +23,25 @@ import type {
   TileTransition,
 } from "./game/types";
 
-const createDebugWinBoard = (): Board => {
-  return [
-    [2, 4, 8, 16],
-    [32, 64, 128, 256],
-    [512, 1024, 2048, 4],
-    [8, 16, 32, 64],
-  ];
-};
-
-const createDebugLoseBoard = (): Board => {
+const createBaseDebugBoard = (): Board => {
   return [
     [2, 4, 8, 16],
     [32, 64, 128, 256],
     [512, 1024, 2, 4],
     [8, 16, 32, 64],
   ];
+};
+
+// eslint-disable-next-line react-refresh/only-export-components
+export const createDebugWinBoard = (): Board => {
+  const board = createBaseDebugBoard();
+  board[2][2] = 2048;
+  return board;
+};
+
+// eslint-disable-next-line react-refresh/only-export-components
+export const createDebugLoseBoard = (): Board => {
+  return createBaseDebugBoard();
 };
 
 function App() {
