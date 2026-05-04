@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import * as matchers from "@testing-library/jest-dom/matchers";
+import "@testing-library/jest-dom/vitest";
 import {
   act,
   cleanup,
@@ -8,8 +8,6 @@ import {
   screen,
 } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-
-expect.extend(matchers);
 
 // Ensure the DOM is reset between every test regardless of which describe block
 // the test belongs to (needed because vitest globals are off by default, so
@@ -80,10 +78,6 @@ vi.mock("./game/model-suggestion", () => ({
 }));
 
 // ─── Helpers ───────────────────────────────────────────────────────────────
-
-/** Resolve after all pending promises (one macro-task tick). */
-const flushPromises = () =>
-  new Promise<void>((resolve) => setTimeout(resolve, 0));
 
 /** Flush the microtask queue without relying on setTimeout (safe under fake timers). */
 const flushMicrotasks = async () => {
