@@ -357,11 +357,20 @@
 
 /* ── Layout wrapper ─────────────────────────────────────────── */
 .game-layout {
-  display: flex;
-  align-items: flex-start;
-  gap: 24px;
-  width: min(100%, calc(720px + 24px + 160px)); /* shell + gap + sidebar */
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
+  grid-template-areas:
+    "shell  sidebar"
+    "footer .      ";
+  gap: 20px 24px;
+  align-items: start;
+  width: min(100%, calc(800px + 24px + 160px)); /* shell + gap + sidebar */
 }
+
+.game-shell   { grid-area: shell; }
+.game-key-sidebar { grid-area: sidebar; }
+.game-footer  { grid-area: footer; margin-top: 0; }
 
 /* ── Key legend sidebar ─────────────────────────────────────── */
 .game-key-sidebar {
@@ -428,20 +437,20 @@ kbd {
   grid-column: 3;
 }
 
+/* ── Narrow screens: stack everything ──────────────────────── */
 @media (max-width: 980px) {
   .app-root {
     place-items: start center;
   }
 
   .game-layout {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "shell"
+      "footer"
+      "sidebar";
     width: min(100%, 720px);
-    flex-direction: column;
-    align-items: stretch;
     gap: 14px;
-  }
-
-  .game-shell {
-    max-width: 100%;
   }
 
   .game-key-sidebar {
@@ -467,7 +476,6 @@ kbd {
   }
 
   .game-shell {
-    flex: none;
     width: 100%;
     border-radius: 10px;
     padding: 12px;
@@ -483,5 +491,79 @@ kbd {
 
   .game-controls__hint {
     font-size: 11px;
+  }
+}
+
+/* ── Short viewports, wide enough for 2 columns             ── */
+/* Controls slide under the legend; board capped at 90svh      */
+@media (min-width: 981px) and (max-height: 800px) {
+  .app-root {
+    padding: 8px 16px;
+    place-items: start center;
+  }
+
+  .game-layout {
+    /* controls move into right column, below the legend */
+    grid-template-areas:
+      "shell  sidebar"
+      "shell  footer";
+    grid-template-rows: 1fr auto;
+    gap: 12px 20px;
+  }
+
+  .game-shell {
+    grid-row: 1 / 3;
+    display: flex;
+    flex-direction: column;
+    /* prevent shell from exceeding the viewport height */
+    max-height: 90svh;
+    box-sizing: border-box;
+    padding: 12px;
+  }
+
+  /* board-wrapper fills remaining space in the flex shell */
+  .game-board-wrapper {
+    flex: 1 1 auto;
+    min-height: 0;
+    /* board is ~square, so capping its width caps its height too */
+    max-width: calc(90svh - 150px);
+  }
+
+  .game-header {
+    margin-bottom: 8px;
+  }
+
+  .game-footer {
+    align-self: start;
+  }
+
+  .tile {
+    min-height: 0;
+  }
+}
+
+@media (min-width: 981px) and (max-height: 650px) {
+  .app-root {
+    padding: 6px 12px;
+  }
+
+  .game-layout {
+    gap: 8px 16px;
+  }
+
+  .game-shell {
+    padding: 8px;
+  }
+
+  .game-board-wrapper {
+    max-width: calc(90svh - 110px);
+  }
+
+  .game-header {
+    margin-bottom: 4px;
+  }
+
+  .game-title {
+    font-size: 28px;
   }
 }

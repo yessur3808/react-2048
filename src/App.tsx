@@ -228,18 +228,18 @@ function App() {
               <GameOverlay status={status} onNewGame={handleNewGame} />
             )}
           </div>
-          <GameControls
-            isPlaying={isPlaying && !isAnimatingMove}
-            onMove={handleMove}
-            onRequestSuggestion={handleRequestSuggestion}
-            hasRequestedSuggestion={hasRequestedSuggestion}
-            suggestedDirection={suggestedDirection}
-            getMoveButtonClassName={getMoveButtonClassName}
-            isSuggesting={isSuggesting}
-            suggestionError={suggestionError}
-          />
         </section>
         <GameKeyboardLegend />
+        <GameControls
+          isPlaying={isPlaying && !isAnimatingMove}
+          onMove={handleMove}
+          onRequestSuggestion={handleRequestSuggestion}
+          hasRequestedSuggestion={hasRequestedSuggestion}
+          suggestedDirection={suggestedDirection}
+          getMoveButtonClassName={getMoveButtonClassName}
+          isSuggesting={isSuggesting}
+          suggestionError={suggestionError}
+        />
       </div>
     </main>
   );
