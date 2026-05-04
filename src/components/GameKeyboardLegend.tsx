@@ -1,7 +1,7 @@
 export const GameKeyboardLegend = () => {
   return (
     <aside className="game-key-sidebar" aria-label="keyboard shortcuts">
-      <p className="game-key-sidebar__title">Keyboard</p>
+      <p className="game-key-sidebar-title">Keyboard</p>
       <ul className="game-key-legend">
         <li>
           <kbd>↑</kbd> Move Up

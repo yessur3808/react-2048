@@ -31,13 +31,13 @@ export const GameHeader = ({
           aria-label="Select suggestion mode"
         >
           <button
-            className={`game-mode-toggle__btn${suggestionMode === "basic" ? " game-mode-toggle__btn--active" : ""}`}
+            className={`game-mode-toggle-btn${suggestionMode === "basic" ? " game-mode-toggle-btn--active" : ""}`}
             onClick={() => onSuggestionModeChange("basic")}
           >
             Basic
           </button>
           <button
-            className={`game-mode-toggle__btn${suggestionMode === "ai" ? " game-mode-toggle__btn--active" : ""}`}
+            className={`game-mode-toggle-btn${suggestionMode === "ai" ? " game-mode-toggle-btn--active" : ""}`}
             onClick={() => onSuggestionModeChange("ai")}
           >
             AI

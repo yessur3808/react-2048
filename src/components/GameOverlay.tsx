@@ -17,8 +17,8 @@ export const GameOverlay = ({ status, onNewGame }: GameOverlayProps) => {
       role="status"
       aria-live="polite"
     >
-      <p className="game-overlay__message">{message}</p>
-      <button className="game-overlay__btn" onClick={onNewGame}>
+      <p className="game-overlay-message">{message}</p>
+      <button className="game-overlay-btn" onClick={onNewGame}>
         New Game
       </button>
     </div>

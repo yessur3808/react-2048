@@ -50,7 +50,7 @@ function App() {
   const [suggestedDirection, setSuggestedDirection] =
     useState<Direction | null>(null);
   const [hasRequestedSuggestion, setHasRequestedSuggestion] = useState(false);
-  const [suggestionMode, setSuggestionMode] = useState<SuggestionMode>("basic");
+  const [suggestionMode, setSuggestionMode] = useState<SuggestionMode>("ai");
   const [isSuggesting, setIsSuggesting] = useState(false);
   const [suggestionError, setSuggestionError] = useState<string | null>(null);
   const [movingTiles, setMovingTiles] = useState<TileTransition[]>([]);

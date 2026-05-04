@@ -20,7 +20,7 @@ export const Tile = ({ value, className = "", style }: TileProps) => {
 
   return (
     <div className={`tile ${toneClass} ${className}`.trim()} style={style}>
-      <span className="tile__value">{value ?? ""}</span>
+      <span className="tile-value">{value ?? ""}</span>
     </div>
   );
 };

@@ -62,20 +62,23 @@ export const GameBoard = ({ board, movingTiles = [] }: GameBoardProps) => {
   return (
     <section className="game-board" aria-label="Game board">
       {rows.map((row, rowIndex) => (
-        <div className="game-board__row" key={row.key}>
+        <div className="game-board-row" key={row.key}>
           {row.cells.map((cell, colIndex) => {
             const shouldHideSource = hiddenSourcePositions.has(
               `${rowIndex}-${colIndex}`,
             );
 
             return (
-              <Tile key={cell.key} value={shouldHideSource ? null : cell.value} />
+              <Tile
+                key={cell.key}
+                value={shouldHideSource ? null : cell.value}
+              />
             );
           })}
         </div>
       ))}
       {movingTiles.length > 0 && (
-        <div className="game-board__overlay" aria-hidden="true">
+        <div className="game-board-overlay" aria-hidden="true">
           {movingTiles.map((tile) => {
             const style = {
               gridRow: tile.fromRow + 1,

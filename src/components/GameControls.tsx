@@ -85,7 +85,7 @@ export const GameControls = ({
         >
           {isSuggesting ? "Analyzing\u2026" : "Get Suggestion"}
         </button>
-        <p className="game-controls__hint" aria-live="polite">
+        <p className="game-controls-hint" aria-live="polite">
           <span>{suggestionLabel}</span>
         </p>
       </div>
