@@ -10,8 +10,6 @@ import {
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // Ensure the DOM is reset between every test regardless of which describe block
-// the test belongs to (needed because vitest globals are off by default, so
-// @testing-library/react cannot detect afterEach automatically).
 afterEach(() => {
   cleanup();
 });
@@ -71,7 +69,6 @@ vi.mock("./game/model-suggestion", () => ({
 
 /** Flush the microtask queue without relying on setTimeout (safe under fake timers). */
 const flushMicrotasks = async () => {
-  // Repeat enough times to resolve chained .then() handlers.
   for (let i = 0; i < 5; i += 1) {
     await Promise.resolve();
   }
